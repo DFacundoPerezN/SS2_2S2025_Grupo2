@@ -8,9 +8,10 @@
 
 1. Entra a [Google Cloud Console](https://console.cloud.google.com/) e inicia sesión.
 2. En la barra superior, abre **Project selector** → **New Project**.
+![imagen de proyecto](images/1.PNG)
 
 3. Completa:
-   - **Project name:** `ss2-equipo-02`
+   - **Project name:** el de elección
    - **Billing account:** el de tu cuenta (free trial con créditos).
    - **Location/Organization:** deja “No organiz
 
