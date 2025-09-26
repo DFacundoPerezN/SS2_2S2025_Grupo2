@@ -22,6 +22,7 @@
    - **Project name:** el de elección
    - **Billing account:** el de tu cuenta (free trial con créditos).
    - **Location/Organization:** deja “No organiz
+![imagen de proyecto](images/name_project.jpg)
 
 4. Haz clic en **Create** y selecciona el proyecto recién creado.
 
@@ -39,6 +40,8 @@
    - **Viewer** (`roles/viewer`) – ver recursos del proyecto.
    - **BigQuery Job User** (`roles/bigquery.jobUser`) – ejecutar consultas/jobs facturados al proyecto.
    - **BigQuery User** (`roles/bigquery.user`) – crear *datasets* en el proyecto.
+
+![usuarios del dataset](images/permisos-dataset.jpg)
 4. Guarda los cambios.
 
 > ⚠️ No otorgues **Owner** del proyecto. Los permisos finos de edición sobre datos se darán a nivel **dataset** en el siguiente paso (cuando creemos `<DATASET_FASE1>`).
