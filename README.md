@@ -50,7 +50,7 @@
 
 Pídele a `3607834730101@ingenieria.usac.edu.gt` que:
 
-1. Abra **BigQuery Studio** con el proyecto `ss2-bigquery-proyecto-473223` seleccionado.
+1. Abra **BigQuery Studio** con el proyecto `ss2-bigquery-proyecto-473223.` seleccionado.
 2. Ejecute un **dry-run** (Query settings → *Estimate bytes processed*) de:
 
    ```sql
@@ -63,11 +63,11 @@ Pídele a `3607834730101@ingenieria.usac.edu.gt` que:
 
 ## 2. Creación del dataset y asignación de permisos
 
-> Proyecto: `ss2-bigquery-proyecto-473223`
+> Proyecto: `ss2-bigquery-proyecto-473223.`
 
 ### 2.1 Crear el dataset
 
-1. Entra a **BigQuery Studio** con el proyecto `ss2-bigquery-proyecto-473223` seleccionado.
+1. Entra a **BigQuery Studio** con el proyecto `ss2-bigquery-proyecto-473223.` seleccionado.
 
 2. Haz clic en **+ Create dataset**.
 
@@ -82,7 +82,7 @@ Pídele a `3607834730101@ingenieria.usac.edu.gt` que:
 También puedes hacerlo con SQL:
 
 ```sql
-CREATE SCHEMA IF NOT EXISTS `ss2-bigquery-proyecto-473223.fase1_dataset`
+CREATE SCHEMA IF NOT EXISTS `ss2-bigquery-proyecto-473223..fase1_dataset`
 OPTIONS (location = "US");
 ```
 
@@ -104,7 +104,7 @@ OPTIONS (location = "US");
 
 Pídele a un integrante que cree un tabla prueba:
 
-si se crea sin problemas dentro del proyecto `ss2-bigquery-proyecto-473223` y dentro del dataset, entonces tiene permisos correctos sobre el dataset `<DATASET_FASE1>`.
+si se crea sin problemas dentro del proyecto `ss2-bigquery-proyecto-473223.` y dentro del dataset, entonces tiene permisos correctos sobre el dataset `<DATASET_FASE1>`.
 
 ## 3. Pruebas iniciales con el dataset público
 
@@ -211,7 +211,7 @@ Cada consulta en BigQuery se ejecuta como un **Job**. Es importante aprender a l
 - **Clustering:** `pickup_location_id, dropoff_location_id, payment_type`
 
 ```sql
-CREATE OR REPLACE TABLE `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 PARTITION BY DATE(pickup_datetime)
 CLUSTER BY pickup_location_id, dropoff_location_id, payment_type AS
 SELECT *
@@ -228,13 +228,13 @@ WHERE data_file_month BETWEEN 1 AND 3
 ```sql
 -- Esquema (confirmar que existe pickup_datetime TIMESTAMP)
 SELECT column_name, data_type
-FROM `ss2-bigquery-team0.fase1_dataset.INFORMATION_SCHEMA.COLUMNS`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.INFORMATION_SCHEMA.COLUMNS`
 WHERE table_name = 'trips_q1_clean'
 ORDER BY column_name;
 
 -- Particiones creadas (muestran días)
 SELECT partition_id, total_rows
-FROM `ss2-bigquery-team0.fase1_dataset.INFORMATION_SCHEMA.PARTITIONS`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.INFORMATION_SCHEMA.PARTITIONS`
 WHERE table_name = 'trips_q1_clean'
 ORDER BY partition_id
 LIMIT 20;
@@ -250,7 +250,7 @@ LIMIT 20;
 - **Clustering:** `pickup_location_id, hour_of_day`
 
 ```sql
-CREATE OR REPLACE TABLE `ss2-bigquery-team0.fase1_dataset.hourly_demand_q1`
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase1_dataset.hourly_demand_q1`
 PARTITION BY DATE(pickup_datetime)
 CLUSTER BY pickup_location_id, hour_of_day AS
 SELECT
@@ -260,7 +260,7 @@ SELECT
   COUNT(*) AS trips,
   -- Conservamos pickup_datetime para permitir el PARTITION BY correcto
   ANY_VALUE(pickup_datetime) AS pickup_datetime
-FROM `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 GROUP BY pickup_location_id, hour_of_day, pickup_date;
 ```
 
@@ -269,20 +269,20 @@ GROUP BY pickup_location_id, hour_of_day, pickup_date;
 ```sql
 -- Confirmar columnas y tipos
 SELECT column_name, data_type
-FROM `ss2-bigquery-team0.fase1_dataset.INFORMATION_SCHEMA.COLUMNS`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.INFORMATION_SCHEMA.COLUMNS`
 WHERE table_name = 'hourly_demand_q1'
 ORDER BY column_name;
 
 -- Ver particiones
 SELECT partition_id, total_rows
-FROM `ss2-bigquery-team0.fase1_dataset.INFORMATION_SCHEMA.PARTITIONS`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.INFORMATION_SCHEMA.PARTITIONS`
 WHERE table_name = 'hourly_demand_q1'
 ORDER BY partition_id
 LIMIT 20;
 
 -- Consulta que aprovecha partición y cluster
 SELECT SUM(trips) AS viajes_zona_hora
-FROM `ss2-bigquery-team0.fase1_dataset.hourly_demand_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.hourly_demand_q1`
 WHERE DATE(pickup_datetime) = '2022-02-15'
   AND pickup_location_id = '237'
   AND hour_of_day BETWEEN 7 AND 9;
@@ -300,7 +300,7 @@ WHERE DATE(pickup_datetime) = '2022-02-15'
 - **Clustering:** `payment_type`
 
 ```sql
-CREATE OR REPLACE TABLE `ss2-bigquery-team0.fase1_dataset.monthly_metrics_q1`
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase1_dataset.monthly_metrics_q1`
 PARTITION BY month_date
 CLUSTER BY payment_type AS
 SELECT
@@ -310,7 +310,7 @@ SELECT
   ROUND(AVG(trip_distance), 2) AS avg_distance,
   ROUND(AVG(total_amount), 2) AS avg_total,
   ROUND(AVG(tip_amount), 2) AS avg_tip
-FROM `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 GROUP BY month_date, payment_type;
 ```
 
@@ -319,19 +319,19 @@ GROUP BY month_date, payment_type;
 ```sql
 -- Esquema: confirmar que month_date es DATE
 SELECT column_name, data_type
-FROM `ss2-bigquery-team0.fase1_dataset.INFORMATION_SCHEMA.COLUMNS`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.INFORMATION_SCHEMA.COLUMNS`
 WHERE table_name = 'monthly_metrics_q1'
 ORDER BY column_name;
 
 -- Particiones mensuales (IDs como 2022-01-01, 2022-02-01, ...)
 SELECT partition_id, total_rows
-FROM `ss2-bigquery-team0.fase1_dataset.INFORMATION_SCHEMA.PARTITIONS`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.INFORMATION_SCHEMA.PARTITIONS`
 WHERE table_name = 'monthly_metrics_q1'
 ORDER BY partition_id;
 
 -- Serie temporal de KPI
 SELECT month_date, SUM(trips) AS total_trips
-FROM `ss2-bigquery-team0.fase1_dataset.monthly_metrics_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.monthly_metrics_q1`
 GROUP BY month_date
 ORDER BY month_date;
 ```
@@ -346,7 +346,7 @@ ORDER BY month_date;
 - **Clustering:** `tip_bucket`
 
 ```sql
-CREATE OR REPLACE TABLE `ss2-bigquery-team0.fase1_dataset.tips_buckets_q1`
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase1_dataset.tips_buckets_q1`
 PARTITION BY month_date
 CLUSTER BY tip_bucket AS
 WITH base AS (
@@ -359,7 +359,7 @@ WITH base AS (
       WHEN tip_amount <= 10 THEN '5–10 USD'
       ELSE 'Más de 10 USD'
     END AS tip_bucket
-  FROM `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+  FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 )
 SELECT
   month_date,
@@ -374,19 +374,19 @@ GROUP BY month_date, tip_bucket;
 ```sql
 -- Esquema
 SELECT column_name, data_type
-FROM `ss2-bigquery-team0.fase1_dataset.INFORMATION_SCHEMA.COLUMNS`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.INFORMATION_SCHEMA.COLUMNS`
 WHERE table_name = 'tips_buckets_q1'
 ORDER BY column_name;
 
 -- Particiones mensuales
 SELECT partition_id, total_rows
-FROM `ss2-bigquery-team0.fase1_dataset.INFORMATION_SCHEMA.PARTITIONS`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.INFORMATION_SCHEMA.PARTITIONS`
 WHERE table_name = 'tips_buckets_q1'
 ORDER BY partition_id;
 
 -- Distribucion por bucket
 SELECT tip_bucket, SUM(trips) AS total
-FROM `ss2-bigquery-team0.fase1_dataset.tips_buckets_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.tips_buckets_q1`
 GROUP BY tip_bucket
 ORDER BY total DESC;
 ```
@@ -424,14 +424,14 @@ Ejemplo con la tabla `trips_q1_clean`:
 ```sql
 -- Q1 completo (enero a marzo)
 SELECT COUNT(*) AS filas_q1
-FROM `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 WHERE DATE(pickup_datetime) BETWEEN '2022-01-01' AND '2022-03-31';
 ```
 
 ```sql
 -- Solo febrero (subconjunto menor)
 SELECT COUNT(*) AS filas_febrero
-FROM `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 WHERE DATE(pickup_datetime) BETWEEN '2022-02-01' AND '2022-02-28';
 ```
 
@@ -446,14 +446,14 @@ Para evitar que `COUNT(*)` use solo metadata, cuenta sobre una columna:
 ```sql
 -- Q1 completo
 SELECT COUNT(trip_distance) AS filas_q1
-FROM `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 WHERE DATE(pickup_datetime) BETWEEN '2022-01-01' AND '2022-03-31';
 ```
 
 ```sql
 -- Solo febrero
 SELECT COUNT(trip_distance) AS filas_febrero
-FROM `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 WHERE DATE(pickup_datetime) BETWEEN '2022-02-01' AND '2022-02-28';
 ```
 
@@ -467,7 +467,7 @@ Si además filtras por columnas de clustering (ej. `pickup_location_id`), los by
 
 ```sql
 SELECT COUNT(trip_distance)
-FROM `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 WHERE DATE(pickup_datetime) BETWEEN '2022-02-01' AND '2022-02-28'
   AND pickup_location_id = '237';
 ```
@@ -494,7 +494,7 @@ WHERE DATE(pickup_datetime) BETWEEN '2022-02-01' AND '2022-02-28'
 SELECT
   month_date,                   -- 1er día de cada mes
   SUM(trips) AS total_viajes
-FROM `ss2-bigquery-team0.fase1_dataset.monthly_metrics_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.monthly_metrics_q1`
 -- Partición mensual: opcional, acota rango
 WHERE month_date BETWEEN '2022-01-01' AND '2022-03-01'
 GROUP BY month_date
@@ -510,7 +510,7 @@ SELECT
   SUM(trips) AS total_viajes,
   ROUND(SAFE_DIVIDE(SUM(avg_total * trips), SUM(trips)), 2)    AS tarifa_promedio,
   ROUND(SAFE_DIVIDE(SUM(avg_distance * trips), SUM(trips)), 2) AS distancia_promedio
-FROM `ss2-bigquery-team0.fase1_dataset.monthly_metrics_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.monthly_metrics_q1`
 WHERE month_date BETWEEN '2022-01-01' AND '2022-03-01'
 GROUP BY month_date
 ORDER BY month_date;
@@ -531,7 +531,7 @@ ORDER BY month_date;
 SELECT
   hour_of_day AS hora,
   SUM(trips) AS total_viajes
-FROM `ss2-bigquery-team0.fase1_dataset.hourly_demand_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.hourly_demand_q1`
 WHERE DATE(pickup_datetime) BETWEEN '2022-02-01' AND '2022-02-28'
 GROUP BY hora
 ORDER BY hora;
@@ -544,7 +544,7 @@ SELECT
   pickup_location_id,
   hour_of_day,
   SUM(trips) AS total_viajes
-FROM `ss2-bigquery-team0.fase1_dataset.hourly_demand_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.hourly_demand_q1`
 WHERE DATE(pickup_datetime) BETWEEN '2022-02-01' AND '2022-02-28'
 GROUP BY pickup_location_id, hour_of_day
 ORDER BY pickup_location_id, hour_of_day;
@@ -565,7 +565,7 @@ ORDER BY pickup_location_id, hour_of_day;
 SELECT
   payment_type,
   SUM(trips) AS total_viajes
-FROM `ss2-bigquery-team0.fase1_dataset.monthly_metrics_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.monthly_metrics_q1`
 WHERE month_date BETWEEN '2022-01-01' AND '2022-03-01'
 GROUP BY payment_type
 ORDER BY total_viajes DESC;
@@ -576,7 +576,7 @@ ORDER BY total_viajes DESC;
 ```sql
 WITH agg AS (
   SELECT payment_type, SUM(trips) AS total_viajes
-  FROM `ss2-bigquery-team0.fase1_dataset.monthly_metrics_q1`
+  FROM `ss2-bigquery-proyecto-473223.fase1_dataset.monthly_metrics_q1`
   WHERE month_date BETWEEN '2022-01-01' AND '2022-03-01'
   GROUP BY payment_type
 )
@@ -603,7 +603,7 @@ ORDER BY total_viajes DESC;
 SELECT
   tip_bucket,
   SUM(trips) AS total_viajes
-FROM `ss2-bigquery-team0.fase1_dataset.tips_buckets_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.tips_buckets_q1`
 WHERE month_date BETWEEN '2022-01-01' AND '2022-03-01'
 GROUP BY tip_bucket
 ORDER BY total_viajes DESC;
@@ -616,7 +616,7 @@ SELECT
   month_date,
   tip_bucket,
   SUM(trips) AS total_viajes
-FROM `ss2-bigquery-team0.fase1_dataset.tips_buckets_q1`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.tips_buckets_q1`
 WHERE month_date BETWEEN '2022-01-01' AND '2022-03-01'
 GROUP BY month_date, tip_bucket
 ORDER BY month_date, tip_bucket;
@@ -636,7 +636,7 @@ ORDER BY month_date, tip_bucket;
 SELECT
   pickup_location_id,
   COUNT(*) AS total_viajes
-FROM `ss2-bigquery-team0.fase1_dataset.trips_q1_clean`
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
 WHERE DATE(pickup_datetime) BETWEEN '2022-01-01' AND '2022-03-31'
 GROUP BY pickup_location_id
 ORDER BY total_viajes DESC
