@@ -34,7 +34,7 @@
 
 1. Ve a **IAM & Admin → IAM → Grant access**.
 
-2. Ingresa el correo del integrante: `<CORREO_INTEGRANTE_2>`
+2. Ingresa el correo del integrante: `3607834730101@ingenieria.usac.edu.gt`
 
 3. Asigna **estos roles a nivel de proyecto**:
    - **Viewer** (`roles/viewer`) – ver recursos del proyecto.
@@ -48,9 +48,9 @@
 
 ### 1.3 Verificación rápida del acceso (recomendado)
 
-Pídele a `<CORREO_INTEGRANTE_2>` que:
+Pídele a `3607834730101@ingenieria.usac.edu.gt` que:
 
-1. Abra **BigQuery Studio** con el proyecto `<NOMBRE_PROYECTO> / <ID_PROYECTO>` seleccionado.
+1. Abra **BigQuery Studio** con el proyecto `ss2-bigquery-proyecto-473223` seleccionado.
 2. Ejecute un **dry-run** (Query settings → *Estimate bytes processed*) de:
 
    ```sql
@@ -63,18 +63,17 @@ Pídele a `<CORREO_INTEGRANTE_2>` que:
 
 ## 2. Creación del dataset y asignación de permisos
 
-> Proyecto de ejemplo: `ss2-bigquery-team0`
-> Reemplaza los valores entre `<>` según tu equipo.
+> Proyecto: `ss2-bigquery-proyecto-473223`
 
 ### 2.1 Crear el dataset
 
-1. Entra a **BigQuery Studio** con el proyecto `ss2-bigquery-team0` seleccionado.
+1. Entra a **BigQuery Studio** con el proyecto `ss2-bigquery-proyecto-473223` seleccionado.
 
 2. Haz clic en **+ Create dataset**.
 
 3. Configura:
 
-- **Dataset ID:** `<DATASET_FASE1>` (ej.: `fase1_dataset`)
+- **Dataset ID:** `fase1_dataset`
 - **Location:** `US`
 - Deja las demás opciones por defecto.
 
@@ -83,7 +82,7 @@ Pídele a `<CORREO_INTEGRANTE_2>` que:
 También puedes hacerlo con SQL:
 
 ```sql
-CREATE SCHEMA IF NOT EXISTS `ss2-bigquery-team0.<DATASET_FASE1>`
+CREATE SCHEMA IF NOT EXISTS `ss2-bigquery-proyecto-473223.fase1_dataset`
 OPTIONS (location = "US");
 ```
 
@@ -95,7 +94,7 @@ OPTIONS (location = "US");
 
 3. Agrega a los integrantes del grupo:
 
-- `<CORREO_INTEGRANTE_2>`
+- `3607834730101@ingenieria.usac.edu.gt`
 
 1. Asigna el rol:
 
@@ -105,7 +104,7 @@ OPTIONS (location = "US");
 
 Pídele a un integrante que cree un tabla prueba:
 
-si se crea sin problemas dentro del proyecto `ss2-bigquery-team0` y dentro del dataset, entonces tiene permisos correctos sobre el dataset `<DATASET_FASE1>`.
+si se crea sin problemas dentro del proyecto `ss2-bigquery-proyecto-473223` y dentro del dataset, entonces tiene permisos correctos sobre el dataset `<DATASET_FASE1>`.
 
 ## 3. Pruebas iniciales con el dataset público
 

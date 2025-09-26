@@ -1,3 +1,15 @@
+-- Tabla base de q1 2022 (particionada y clusterizada)
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
+PARTITION BY DATE(pickup_datetime)
+CLUSTER BY pickup_location_id, dropoff_location_id, payment_type AS
+SELECT *
+FROM `bigquery-public-data.new_york_taxi_trips.tlc_yellow_trips_2022`
+WHERE data_file_month BETWEEN 1 AND 3
+  AND trip_distance > 0
+  AND total_amount >= 0
+  AND fare_amount >= 0
+  AND passenger_count BETWEEN 1 AND 6; 
+
 --Tabla base de TODO 2022 (particionada, sin cluster)
 CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase1_dataset.trips_2022_part`
 PARTITION BY DATE(pickup_datetime)
@@ -102,8 +114,6 @@ WHERE DATE(pickup_datetime) = '2022-02-15'
   AND pickup_location_id = 237
   AND hour_of_day BETWEEN 7 AND 9;
 
-
-
 -- Distribucion de propinas 2022
 CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase1_dataset.tips_buckets_2022`
 PARTITION BY month_date
@@ -159,3 +169,96 @@ FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_2022_part`
 WHERE pickup_datetime >= '2022-07-01' AND pickup_datetime < '2022-10-01'
 GROUP BY payment_type
 ORDER BY viajes DESC;
+
+
+--Tablas asumidas
+--Pública: bigquery-public-data.new_york_taxi_trips.tlc_yellow_trips_2022
+--Particionada: ss2-bigquery-proyecto-473223.fase1_dataset.trips_2022_part
+
+-- Agregacion anual (Publica vs particionada)
+-- Viajes por mes (tabla pública, sin particiones)
+SELECT EXTRACT(MONTH FROM pickup_datetime) AS mes, COUNT(*) AS viajes
+FROM `bigquery-public-data.new_york_taxi_trips.tlc_yellow_trips_2022`
+WHERE pickup_datetime >= '2022-01-01' AND pickup_datetime < '2023-01-01'
+GROUP BY mes
+ORDER BY mes;
+
+-- Misma consulta sobre tu tabla particionada
+SELECT EXTRACT(MONTH FROM pickup_datetime) AS mes, COUNT(*) AS viajes
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_2022_part`
+WHERE pickup_datetime >= '2022-01-01' AND pickup_datetime < '2023-01-01'
+GROUP BY mes
+ORDER BY mes;
+
+-- Rango mensual selectivo (pública vs. particionada)
+-- Mayo 2022: viajes por zona de abordaje
+SELECT pickup_location_id, COUNT(*) AS viajes
+FROM `bigquery-public-data.new_york_taxi_trips.tlc_yellow_trips_2022`
+WHERE pickup_datetime >= '2022-05-01' AND pickup_datetime < '2022-06-01'
+GROUP BY pickup_location_id
+ORDER BY viajes DESC
+LIMIT 20;
+
+-- Misma consulta sobre tu tabla particionada
+SELECT pickup_location_id, COUNT(*) AS viajes
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_2022_part`
+WHERE pickup_datetime >= '2022-05-01' AND pickup_datetime < '2022-06-01'
+GROUP BY pickup_location_id
+ORDER BY viajes DESC
+LIMIT 20;
+
+
+-- Día específico + horas
+-- Total de 7–9 AM para un día específico, todas las zonas
+SELECT SUM(trips) AS viajes
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.hourly_demand_2022`
+WHERE pickup_datetime >= '2022-02-15' AND pickup_datetime < '2022-02-16'
+  AND hour_of_day BETWEEN 7 AND 9;
+
+
+--Promedios económicos (pública vs. particionada)
+-- Promedios por mes: total y propina
+SELECT
+  EXTRACT(MONTH FROM pickup_datetime) AS mes,
+  ROUND(AVG(total_amount),2) AS avg_total,
+  ROUND(AVG(tip_amount),2)   AS avg_tip
+FROM `bigquery-public-data.new_york_taxi_trips.tlc_yellow_trips_2022`
+WHERE pickup_datetime >= '2022-01-01' AND pickup_datetime < '2023-01-01'
+GROUP BY mes
+ORDER BY mes;
+
+-- Misma consulta sobre tu tabla particionada
+SELECT
+  EXTRACT(MONTH FROM pickup_datetime) AS mes,
+  ROUND(AVG(total_amount),2) AS avg_total,
+  ROUND(AVG(tip_amount),2)   AS avg_tip
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_2022_part`
+WHERE pickup_datetime >= '2022-01-01' AND pickup_datetime < '2023-01-01'
+GROUP BY mes
+ORDER BY mes;
+
+
+-- -- Versión sin cluster (usa tu trips_2022_part)
+SELECT COUNT(*) AS viajes
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
+WHERE pickup_datetime >= '2022-01-01' AND pickup_datetime < '2022-04-01'
+  AND pickup_location_id = '237'
+  AND dropoff_location_id = '237'
+  AND payment_type = '1';
+
+-- Versión con cluster (usa tu trips_q1_clean)
+SELECT COUNT(*) AS viajes
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.trips_q1_clean`
+WHERE pickup_datetime >= '2022-01-01' AND pickup_datetime < '2022-04-01'
+  AND pickup_location_id = '237'
+  AND dropoff_location_id = '237'
+  AND payment_type = '1';
+
+-- Dia Especifico
+-- Total de 7–9 AM para un día específico, todas las zonas
+SELECT SUM(trips) AS viajes
+FROM `ss2-bigquery-proyecto-473223.fase1_dataset.hourly_demand_2022`
+WHERE pickup_datetime >= '2022-02-15' AND pickup_datetime < '2022-02-16'
+  AND hour_of_day BETWEEN 7 AND 9;
+
+
