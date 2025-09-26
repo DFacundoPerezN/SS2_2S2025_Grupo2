@@ -1,5 +1,13 @@
 # SS2_2S2025_Grupo2
 
+## Integrantes
+**Nombre:** Daniel Izas
+**Carnet:** 201801105
+---
+**Nombre:** Diego Perez
+**Carnet:** 2021065038
+---
+
 ## Fase 1
 
 ## 1. Creación de proyecto e invitación del equipo
