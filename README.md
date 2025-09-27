@@ -771,3 +771,7 @@ LIMIT 10;
 - Si el tablero se vuelve lento → usar conector **Extract Data** en Looker Studio.
 
 ---
+
+
+### Video enlace
+https://drive.google.com/file/d/194hy7-XfE1jRDGMiqvMH8tSnb3evF5KP/view?usp=sharing
