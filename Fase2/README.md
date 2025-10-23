@@ -94,3 +94,62 @@ WHERE month = 3;
 ```
 
 ## Creación de los Modelos de Machine Learning
+
+Capturas
+
+### A. Regresión Logística (clasificación) probabilidad de haber propinas
+
+```sql
+-- Modelo de clasificación
+CREATE OR REPLACE MODEL `ss2-bigquery-proyecto-473223.fase2_dataset.tip_prediction_logistic_model`
+OPTIONS(
+  model_type='logistic_reg',
+  input_label_cols=['tipped'],
+  AUTO_CLASS_WEIGHTS = TRUE,
+  L1_REG = 0.0,
+  L2_REG = 1.0
+) AS
+SELECT
+  tipped,
+  hour_of_day,  day_of_week,
+  trip_distance,
+  fare_amount,  passenger_count, total_amount,
+  pickup_loc, dropoff_loc
+FROM `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_train`
+
+```
+
+### B. Arbol Potenciado (Boosted Tree) probabilidad de haber propinas
+
+```sql
+-- Modelo de Árbol Potenciado
+CREATE OR REPLACE MODEL `ss2-bigquery-proyecto-473223.fase2_dataset.tip_predict_boostedtree`
+OPTIONS(
+  model_type='BOOSTED_TREE_CLASSIFIER',
+  INPUT_LABEL_COLS = ['tipped'],
+  NUM_PARALLEL_TREE = 1,
+  MAX_TREE_DEPTH = 6,
+  SUBSAMPLE = 0.8,
+  MAX_ITERATIONS = 25,  -- Equivalente a NUM_BOOSTER_ROUND
+  MIN_TREE_CHILD_WEIGHT = 1
+) AS
+SELECT
+  tipped,
+  hour_of_day,  day_of_week,
+  trip_distance,
+  fare_amount,  passenger_count, total_amount,
+  pickup_loc, dropoff_loc
+FROM `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_train`
+
+```
+
+### Evidencia del entrenamiento 
+
+```sql
+-- Información del entrenamiento
+SELECT *
+FROM ML.TRAINING_INFO(MODEL `ss2-bigquery-team0.fase2_dataset.fase2_tipped_logistic`);
+
+SELECT *
+FROM ML.TRAINING_INFO(MODEL `ss2-bigquery-team0.fase2_dataset.fase2_tipped_btree`);
+```
