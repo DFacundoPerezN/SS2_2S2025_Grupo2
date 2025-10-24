@@ -125,3 +125,34 @@ WHERE DATE(pickup_datetime) BETWEEN '2022-10-01' AND '2022-12-31'
   AND fare_amount >= 0
   AND passenger_count BETWEEN 1 AND 6;
 
+---TABLAS DE EVALUACIÓN DE MODELOS---
+-- Tabla de modelo de regresión logística
+-- LOGISTIC
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase2_dataset.eval_tipped_logistic` AS
+SELECT *
+FROM ML.EVALUATE(
+  MODEL `ss2-bigquery-proyecto-473223.fase2_dataset.tip_prediction_logistic_model`,
+  (
+    SELECT
+      tipped,
+      hour_of_day, day_of_week, month,
+      trip_distance, total_amount, fare_amount, passenger_count,
+      pickup_loc, dropoff_loc
+    FROM `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_test`
+  )
+);
+-- Tabla de modelo de árbol de decisión
+-- BOOSTED TREE
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase2_dataset.eval_tipped_btree` AS
+SELECT *
+FROM ML.EVALUATE(
+  MODEL `ss2-bigquery-proyecto-473223.fase2_dataset.tip_predict_boostedtree`,
+  (
+    SELECT
+      tipped,
+      hour_of_day, day_of_week, month,
+      trip_distance, total_amount, fare_amount, passenger_count,
+      pickup_loc, dropoff_loc
+    FROM `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_test`
+  )
+);

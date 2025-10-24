@@ -119,6 +119,8 @@ FROM `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_train`
 
 ```
 
+![resultados del modelo de regresion logistica](images/crearModeloLogico.png)
+
 ### B. Arbol Potenciado (Boosted Tree) probabilidad de haber propinas
 
 ```sql
@@ -143,13 +145,71 @@ FROM `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_train`
 
 ```
 
-### Evidencia del entrenamiento 
+![resultados del modelo de arbol potenciado](images/crearModeloArbolBoosteado.png)
+
+### Evidencia del entrenamiento
+
+#### A. Evidencia Regresión Logística
 
 ```sql
 -- Información del entrenamiento
 SELECT *
-FROM ML.TRAINING_INFO(MODEL `ss2-bigquery-team0.fase2_dataset.fase2_tipped_logistic`);
-
-SELECT *
-FROM ML.TRAINING_INFO(MODEL `ss2-bigquery-team0.fase2_dataset.fase2_tipped_btree`);
+FROM ML.TRAINING_INFO(MODEL `ss2-bigquery-proyecto-473223.fase2_dataset.tip_prediction_logistic_model`);
 ```
+
+![entrenamiento modelo de regresion logistica](images/entrenamientoModeloLogico.png)
+
+#### B. Evidencia Árbol Potenciado
+
+```sql
+-- Información del entrenamientos
+SELECT *
+FROM ML.TRAINING_INFO(MODEL `ss2-bigquery-proyecto-473223.fase2_dataset.tip_predict_boostedtree`);
+```
+
+![entrenamiento modelo de arbol potenciado](images/entrenamientoModeloArbolPotenciado.png)
+
+## Evaluación de modelos (set de prueba)
+
+### A. Evaluación Regresión Logística
+
+```sql
+-- LOGISTIC
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase2_dataset.eval_tipped_logistic` AS
+SELECT *
+FROM ML.EVALUATE(
+  MODEL `ss2-bigquery-proyecto-473223.fase2_dataset.tip_prediction_logistic_model`,
+  (
+    SELECT
+      tipped,
+      hour_of_day, day_of_week, month,
+      trip_distance, total_amount, fare_amount, passenger_count,
+      pickup_loc, dropoff_loc
+    FROM `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_test`
+  )
+);
+```
+
+--- Esta consulta procesará 787.21 MB cuando se ejecute.
+
+### B. Evaluación Árbol Potenciado
+
+```sql
+-- BOOSTED TREE
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase2_dataset.eval_tipped_boostedtree` AS
+SELECT *
+FROM ML.EVALUATE(
+  MODEL `ss2-bigquery-proyecto-473223.fase2_dataset.tip_predict_boostedtree`,
+  (
+    SELECT
+      tipped,
+      hour_of_day, day_of_week, month,
+      trip_distance, total_amount, fare_amount, passenger_count,
+      pickup_loc, dropoff_loc
+    FROM `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_test`
+  )
+);
+```
+
+--- Esta consulta procesará 787.41 MB cuando se ejecute
+Bytes generados y movidos: 19.53 MB
