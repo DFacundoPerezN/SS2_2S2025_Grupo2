@@ -267,3 +267,26 @@ FROM ML.PREDICT(
   TABLE `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_test`
 ) AS p;
 ```
+## Logica de division de datos
+
+Se empleó una **división temporal (por tiempo)** para evitar la fuga de información (data leakage) y simular mejor un escenario de predicción real.
+
+* **Entrenamiento (Train):** Meses 1 y 2 del dataset (Enero y Febrero de 2022).
+* **Prueba (Test/Holdout):** Mes 3 del dataset (Marzo de 2022).
+
+Esta estrategia garantiza que el modelo se entrene con datos históricos y se pruebe con datos futuros, lo cual es apropiado para series de tiempo como los viajes de taxi.
+
+## Enlace al tablero visual.
+El tablero interactivo se diseñó en Looker Studio y contrasta los resultados reales frente a los predichos, además de analizar el error por hora del día.
+```
+https://lookerstudio.google.com/reporting/c323a981-716f-49ff-acc6-99355294dc1e 
+```
+
+## Comentario sobre etica y sesgos
+
+El dataset NYC Taxi Trips 2022 presenta sesgos inherentes que deben considerarse al usar las predicciones:
+
+1.  **Sesgo Geográfico y Temporal:** Los patrones de propina y demanda están altamente concentrados en Manhattan y en horas pico/fines de semana. Esto puede llevar al modelo a sobrevalorar la importancia de estas zonas y horarios, subrepresentando las necesidades de transporte y propinas en otras áreas (ej: Bronx, Queens).
+2.  **Sesgo Socioeconómico (Propina):** La decisión de dejar propina no es puramente un reflejo del servicio sino también de factores culturales y socioeconómicos. Un modelo que predice la propina podría perpetuar patrones de ingresos desiguales entre conductores que operan en diferentes áreas de la ciudad.
+
+**Implicación para el Negocio:** Si estas predicciones se usan para optimizar la asignación de recursos o incentivos (ej., enviar más taxis a zonas de alta propina), podrían **reforzar la desigualdad** en el servicio y la ganancia entre los conductores. Se recomienda complementar el modelo con una capa de equidad de servicio.
