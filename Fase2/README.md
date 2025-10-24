@@ -191,6 +191,7 @@ FROM ML.EVALUATE(
 ```
 
 --- Esta consulta procesará 787.21 MB cuando se ejecute.
+![evaluacion modelo de regresion logistica](images/evaluacionModeloLogico.png)
 
 ### B. Evaluación Árbol Potenciado
 
@@ -213,3 +214,56 @@ FROM ML.EVALUATE(
 
 --- Esta consulta procesará 787.41 MB cuando se ejecute
 Bytes generados y movidos: 19.53 MB
+
+![evaluación modelo de arbol potenciado](images/evaluacionModeloArbolPotenciado.png)
+
+## Elección mejor modelo
+
+**Se eligio al modelo del árbol potenciado como el mejor debido a que con un poco más de configuración, los resultados fueron superiores en precisión.**
+
+### Tabla de resultados comparativos
+
+consulta:
+
+```sql
+SELECT 'LOGISTIC' AS model,
+       roc_auc, accuracy, precision, recall, f1_score, log_loss
+FROM `ss2-bigquery-proyecto-473223.fase2_dataset.eval_tipped_logistic`
+UNION ALL
+SELECT 'BTREE' AS model,
+       roc_auc, accuracy, precision, recall, f1_score, log_loss
+FROM `ss2-bigquery-proyecto-473223.fase2_dataset.eval_tipped_boostedtree`
+ORDER BY model;
+```
+
+resultados:
+
+![Comparacion entre modelos](images/comparacion.png)
+
+## Predicciones y tablas para el dashboard
+
+```sql
+-- Predicciones con el mejor modelo Arbol potenciado
+CREATE OR REPLACE TABLE `ss2-bigquery-proyecto-473223.fase2_dataset.predict_tip_boostedtree_test` AS
+SELECT
+  -- Predicciones
+  p.predicted_tipped AS tipped_pred,
+  p.predicted_tipped_probs[OFFSET(0)].prob AS probability_no_tip,
+  p.predicted_tipped_probs[OFFSET(1)].prob AS probability_tip,
+  -- Características específicas que quieres incluir
+  p.tipped AS tipped_real,
+  p.pickup_datetime,
+  p.pickup_loc, 
+  p.dropoff_loc, 
+  p.hour_of_day, 
+  p.day_of_week, 
+  p.month,
+  p.trip_distance, 
+  p.total_amount, 
+  p.fare_amount, 
+  p.passenger_count
+FROM ML.PREDICT(
+  MODEL `ss2-bigquery-proyecto-473223.fase2_dataset.tip_predict_boostedtree`,
+  TABLE `ss2-bigquery-proyecto-473223.fase2_dataset.v_features_test`
+) AS p;
+```
